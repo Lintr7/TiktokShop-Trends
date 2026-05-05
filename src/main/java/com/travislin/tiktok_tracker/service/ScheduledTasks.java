@@ -1,13 +1,14 @@
 package com.travislin.tiktok_tracker.service;
 
+import java.util.List;
+
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import com.travislin.tiktok_tracker.model.Product;
 import com.travislin.tiktok_tracker.model.Shop;
 import com.travislin.tiktok_tracker.repository.ProductRepository;
 import com.travislin.tiktok_tracker.repository.ShopRepository;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class ScheduledTasks {
@@ -24,7 +25,7 @@ public class ScheduledTasks {
         this.shopRepository = shopRepository;
     }
 
-    @Scheduled(cron = "0 0 */6 * * *")
+    @Scheduled(cron = "0 0 0,6,12,18 * * *", zone = "America/Chicago")
     public void refreshAll() {
         System.out.println("Starting daily refresh...");
 
