@@ -1,6 +1,7 @@
 # HypeShop 📈🔥
 
 A TikTok Shop analytics tracker -> think CamelCamelCamel for TikTok Shop. Track product prices, sales velocity, stock levels, and shop-level revenue estimates over time. 
+
 **Live:** https://hypeshop.up.railway.app
 
 ---
