@@ -22,13 +22,15 @@ public class Product {
     @Column(nullable = false, unique = true)
     private String productId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String title;
 
     private String category;
     private String shopName;
     private String sellerId;
+    @Column(length = 1000)
     private String imageUrl;
+    @Column(length = 1000)
     private String productUrl;
     private Double rating;
     private LocalDateTime firstSeen;

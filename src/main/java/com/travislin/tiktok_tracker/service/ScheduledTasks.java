@@ -24,7 +24,7 @@ public class ScheduledTasks {
         this.shopRepository = shopRepository;
     }
 
-    @Scheduled(cron = "0 0 6 * * *")
+    @Scheduled(cron = "0 0 */6 * * *")
     public void refreshAll() {
         System.out.println("Starting daily refresh...");
 

@@ -58,9 +58,10 @@ public class TikTokShopService {
         String[] urlParts = productUrl.split("/");
         String productId = "";
         for (int i = urlParts.length - 1; i >= 0; i--) {
-            if (urlParts[i].matches("\\d+") && !urlParts[i].isEmpty()) {
-                productId = urlParts[i].split("\\?")[0];
-                break;
+            String part = urlParts[i].split("\\?")[0];
+            if (part.matches("\\d+") && !part.isEmpty()) {
+                  productId = part;
+                  break;
             }
         }
         if (productId.isEmpty()) throw new Exception("Could not extract product ID from URL");
@@ -128,7 +129,6 @@ public class TikTokShopService {
 
         productRepository.save(product);
         takeProductSnapshot(product, data, priceNode, productBase);
-        takeShopSnapshot(data, seller, sellerId, shopName, productUrl);
 
         return product;
     }
@@ -137,9 +137,10 @@ public class TikTokShopService {
         String[] urlParts = shopUrl.split("/");
         String sellerId = "";
         for (int i = urlParts.length - 1; i >= 0; i--) {
-            if (urlParts[i].matches("\\d+") && !urlParts[i].isEmpty()) {
-                sellerId = urlParts[i].split("\\?")[0];
-                break;
+            String part = urlParts[i].split("\\?")[0];
+            if (part.matches("\\d+") && !part.isEmpty()) {
+                  sellerId = part;
+                  break;
             }
         }
         if (sellerId.isEmpty()) throw new Exception("Could not extract seller ID from URL");
@@ -174,14 +175,7 @@ public class TikTokShopService {
         }
 
         if (allProducts.isEmpty()) throw new Exception("No products found for shop: " + sellerId);
-
-        // Sort by sold_count descending
-        allProducts.sort((a, b) -> {
-            long soldA = a.path("sold_info").path("sold_count").asLong();
-            long soldB = b.path("sold_info").path("sold_count").asLong();
-            return Long.compare(soldB, soldA);
-        });
-
+        
         String top1 = allProducts.size() > 0 ? allProducts.get(0).path("product_id").asText() : null;
         String top2 = allProducts.size() > 1 ? allProducts.get(1).path("product_id").asText() : null;
         String top3 = allProducts.size() > 2 ? allProducts.get(2).path("product_id").asText() : null;
@@ -217,7 +211,7 @@ public class TikTokShopService {
         shop.setLastUpdated(LocalDateTime.now());
         shopRepository.save(shop);
 
-        // Calculate totals and upsert all products
+        // Calculate totals only
         long totalSold = 0;
         double totalRevenue = 0.0;
         LocalDate today = LocalDate.now();
@@ -231,51 +225,62 @@ public class TikTokShopService {
             } catch (NumberFormatException ignored) {}
             totalSold += sold;
             totalRevenue += price * sold;
+        }
 
+        // Save only top 3 products with stock
+        List<JsonNode> top3Products = allProducts.subList(0, Math.min(3, allProducts.size()));
+            for (JsonNode p : top3Products) {
             String productId = p.path("product_id").asText();
             String productTitle = p.path("title").asText();
             String productImageUrl = "";
             JsonNode imgUrlList = p.path("image").path("url_list");
             if (!imgUrlList.isMissingNode()) {
-                productImageUrl = imgUrlList.path("0").asText();
+                  productImageUrl = imgUrlList.path("0").asText();
             }
 
             Product product = productRepository.findByProductId(productId)
-                .orElseGet(() -> {
-                    Product pr = new Product();
-                    pr.setProductId(productId);
-                    pr.setFirstSeen(LocalDateTime.now());
-                    return pr;
-                });
+                  .orElseGet(() -> {
+                        Product pr = new Product();
+                        pr.setProductId(productId);
+                        pr.setFirstSeen(LocalDateTime.now());
+                        return pr;
+                  });
+
+            // Fetch full product details for stock and category
+            ResponseEntity<String> productDetailResponse = restTemplate.exchange(
+                  PRODUCT_URL + "?product_id=" + productId, HttpMethod.GET, entity, String.class);
+            JsonNode productDetail = objectMapper.readTree(productDetailResponse.getBody()).path("data");
 
             product.setTitle(productTitle);
             product.setSellerId(finalSellerId);
             product.setShopName(shopName);
             product.setImageUrl(productImageUrl);
-            product.setProductUrl(p.path("canonical_url").asText());
+            product.setProductUrl(p.path("seo_url").path("canonical_url").asText());
             product.setRating(p.path("rate_info").path("score").asDouble());
+            product.setCategory(productDetail.path("product_base").path("category_name").asText());
             product.setLastUpdated(LocalDateTime.now());
             productRepository.save(product);
 
             Optional<ProductSnapshot> existingSnapshot = productSnapshotRepository
-                .findByProductAndSnapshotDate(product, today);
+                  .findByProductAndSnapshotDate(product, today);
             if (existingSnapshot.isEmpty()) {
-                ProductSnapshot snapshot = new ProductSnapshot();
-                snapshot.setProduct(product);
-                snapshot.setSnapshotDate(today);
-                snapshot.setSold((int) sold);
-                snapshot.setReviews(p.path("rate_info").path("review_count").asInt());
-                snapshot.setRating(p.path("rate_info").path("score").asDouble());
-                try {
-                    snapshot.setPrice(Double.parseDouble(
+                  ProductSnapshot snapshot = new ProductSnapshot();
+                  snapshot.setProduct(product);
+                  snapshot.setSnapshotDate(today);
+                  snapshot.setSold((int) p.path("sold_info").path("sold_count").asLong());
+                  snapshot.setReviews(p.path("rate_info").path("review_count").asInt());
+                  snapshot.setRating(p.path("rate_info").path("score").asDouble());
+                  try {
+                        snapshot.setPrice(Double.parseDouble(
                         p.path("product_price_info").path("sale_price_decimal").asText("0")));
-                    snapshot.setOriginalPrice(Double.parseDouble(
+                        snapshot.setOriginalPrice(Double.parseDouble(
                         p.path("product_price_info").path("origin_price_decimal").asText("0")));
-                } catch (NumberFormatException ignored) {}
-                snapshot.setDiscount(p.path("product_price_info").path("discount_format").asText());
-                productSnapshotRepository.save(snapshot);
+                  } catch (NumberFormatException ignored) {}
+                  snapshot.setDiscount(p.path("product_price_info").path("discount_format").asText());
+                  snapshot.setStock(productDetail.path("skus").path("0").path("stock").asInt());
+                  productSnapshotRepository.save(snapshot);
             }
-        }
+            }
 
         // Shop snapshot
         Optional<ShopSnapshot> existingShopSnapshot = shopSnapshotRepository
@@ -331,7 +336,14 @@ public class TikTokShopService {
         snapshot.setSnapshotDate(today);
 
         String realPrice = priceNode.path("real_price").asText().replace("$", "").trim();
-        String originalPrice = priceNode.path("original_price").asText().replace("$", "").trim();
+      if (realPrice.isEmpty() || realPrice.contains("-")) {
+      realPrice = priceNode.path("min_sku_price").asText().trim();
+      }
+
+      String originalPrice = priceNode.path("original_price").asText().replace("$", "").trim();
+      if (originalPrice.isEmpty() || originalPrice.contains("-")) {
+      originalPrice = priceNode.path("min_sku_original_price").asText().trim();
+      }
         String discount = priceNode.path("discount").asText();
 
         if (!realPrice.isEmpty() && !realPrice.equals("null")) {
