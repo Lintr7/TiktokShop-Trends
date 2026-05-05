@@ -154,7 +154,16 @@ export default function ProductPage() {
                 <LineChart data={snapshots}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                   <XAxis dataKey="snapshotDate" tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={{ stroke: "#3f3f46" }} />
-                  <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={{ stroke: "#3f3f46" }} />
+                  <YAxis
+                        tick={{ fontSize: 12, fill: "#94a3b8" }}
+                        axisLine={{ stroke: "#3f3f46" }}
+                        domain={([dataMin, dataMax]) => {
+                              const range = (dataMax as number) - (dataMin as number);
+                              const fallback = Math.max(Math.abs(dataMax as number) * 0.01, 1);
+                              const padding = range > 0 ? range * 0.1 : fallback;
+                              return [(dataMin as number) - padding, (dataMax as number) + padding];
+                        }}
+                  />
                   <Tooltip
                   contentStyle={{ background: "#09090b", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: "#f8fafc" }}
                   labelFormatter={formatTooltipDate}
@@ -171,7 +180,16 @@ export default function ProductPage() {
                 <LineChart data={snapshots}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                   <XAxis dataKey="snapshotDate" tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={{ stroke: "#3f3f46" }} />
-                  <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={{ stroke: "#3f3f46" }} />
+                  <YAxis
+                        tick={{ fontSize: 12, fill: "#94a3b8" }}
+                        axisLine={{ stroke: "#3f3f46" }}
+                        domain={([dataMin, dataMax]) => {
+                              const range = (dataMax as number) - (dataMin as number);
+                              const fallback = Math.max(Math.abs(dataMax as number) * 0.01, 1);
+                              const padding = range > 0 ? range * 0.1 : fallback;
+                              return [(dataMin as number) - padding, (dataMax as number) + padding];
+                        }}
+                  />
                   <Tooltip
                   contentStyle={{ background: "#09090b", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: "#f8fafc" }}
                   labelFormatter={formatTooltipDate}
@@ -187,7 +205,16 @@ export default function ProductPage() {
                 <LineChart data={snapshots}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
                   <XAxis dataKey="snapshotDate" tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={{ stroke: "#3f3f46" }} />
-                  <YAxis tick={{ fontSize: 12, fill: "#94a3b8" }} axisLine={{ stroke: "#3f3f46" }} />
+                  <YAxis
+                        tick={{ fontSize: 12, fill: "#94a3b8" }}
+                        axisLine={{ stroke: "#3f3f46" }}
+                        domain={([dataMin, dataMax]) => {
+                              const range = (dataMax as number) - (dataMin as number);
+                              const fallback = Math.max(Math.abs(dataMax as number) * 0.01, 1);
+                              const padding = range > 0 ? range * 0.1 : fallback;
+                              return [(dataMin as number) - padding, (dataMax as number) + padding];
+                        }}
+                  />
                   <Tooltip contentStyle={{ background: "#09090b", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, color: "#f8fafc" }} labelFormatter={formatTooltipDate} />
                   <Line type="monotone" dataKey="stock" stroke="#25f4ee" strokeWidth={3} dot={false} name="Stock" />
                 </LineChart>
