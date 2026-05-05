@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-application.properties
+application-local.properties
 
 # Node
 node_modules/
