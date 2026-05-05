@@ -13,5 +13,5 @@ import com.travislin.tiktok_tracker.model.ProductSnapshot;
 @Repository
 public interface ProductSnapshotRepository extends JpaRepository<ProductSnapshot, Long> {
     List<ProductSnapshot> findByProductOrderBySnapshotDateAsc(Product product);
-    Optional<ProductSnapshot> findByProductAndSnapshotDate(Product product, LocalDateTime date);
+    Optional<ProductSnapshot> findFirstByProductAndSnapshotDateAfter(Product product, LocalDateTime after);
 }

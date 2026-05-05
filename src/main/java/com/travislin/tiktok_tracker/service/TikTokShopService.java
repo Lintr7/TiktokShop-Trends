@@ -260,8 +260,9 @@ public class TikTokShopService {
             product.setLastUpdated(LocalDateTime.now());
             productRepository.save(product);
 
+            LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
             Optional<ProductSnapshot> existingSnapshot = productSnapshotRepository
-                  .findByProductAndSnapshotDate(product, today);
+                  .findFirstByProductAndSnapshotDateAfter(product, oneHourAgo);
             if (existingSnapshot.isEmpty()) {
                   ProductSnapshot snapshot = new ProductSnapshot();
                   snapshot.setProduct(product);
@@ -282,8 +283,9 @@ public class TikTokShopService {
             }
 
         // Shop snapshot
+        LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
         Optional<ShopSnapshot> existingShopSnapshot = shopSnapshotRepository
-            .findByShopAndSnapshotDate(shop, today);
+            .findFirstByShopAndSnapshotDateAfter(shop, oneHourAgo);
         if (existingShopSnapshot.isEmpty()) {
             ShopSnapshot shopSnapshot = new ShopSnapshot();
             shopSnapshot.setShop(shop);
@@ -326,8 +328,9 @@ public class TikTokShopService {
     public void takeProductSnapshot(Product product, JsonNode data, JsonNode priceNode, JsonNode productBase) {
         LocalDateTime today = LocalDateTime.now();
 
+        LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
         Optional<ProductSnapshot> existing = productSnapshotRepository
-            .findByProductAndSnapshotDate(product, today);
+            .findFirstByProductAndSnapshotDateAfter(product, oneHourAgo);
         if (existing.isPresent()) return;
 
         ProductSnapshot snapshot = new ProductSnapshot();
@@ -401,8 +404,9 @@ public class TikTokShopService {
         shop.setLastUpdated(LocalDateTime.now());
         shopRepository.save(shop);
 
+        LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
         Optional<ShopSnapshot> existing = shopSnapshotRepository
-            .findByShopAndSnapshotDate(shop, today);
+            .findFirstByShopAndSnapshotDateAfter(shop, oneHourAgo);
         if (existing.isPresent()) return;
 
         ShopSnapshot snapshot = new ShopSnapshot();
