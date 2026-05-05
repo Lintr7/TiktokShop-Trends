@@ -1,6 +1,6 @@
 # HypeShop 📈🔥
 
-A TikTok Shop analytics tracker —> think CamelCamelCamel for TikTok Shop. Track product prices, sales velocity, stock levels, and shop-level revenue estimates over time. 
+A TikTok Shop analytics tracker -> think CamelCamelCamel for TikTok Shop. Track product prices, sales velocity, stock levels, and shop-level revenue estimates over time. 
 **Live:** https://hypeshop.up.railway.app
 
 ---
@@ -25,7 +25,7 @@ HypeShop lets users track TikTok Shop products and shops over time, capturing da
 | Database | PostgreSQL 16 |
 | Frontend | Next.js 15, TypeScript, Tailwind CSS |
 | Charts | Recharts |
-| API Source | RapidAPI — `tiktok-shop-products-search-reviews` |
+| API Source | RapidAPI -> `tiktok-shop-products-search-reviews` |
 | Deployment | Railway (backend + frontend + PostgreSQL) |
 | Build Tool | Maven |
 
@@ -54,8 +54,8 @@ PostgreSQL (Railway managed)
 All data comes from a single RapidAPI endpoint: `tiktok-shop-products-search-reviews.p.rapidapi.com`
 
 **Endpoints used:**
-- `GET /shop/product?product_id={id}` — Full product detail, shop stats, seller info, related videos
-- `GET /shop/products?url={url}&shop_id={id}` — All products in a shop with pagination
+- `GET /shop/product?product_id={id}` -> Full product detail, shop stats, seller info, related videos
+- `GET /shop/products?url={url}&shop_id={id}` -> All products in a shop with pagination
 
 **Key quirks:**
 - All array-like fields use string-keyed objects (`"0"`, `"1"`) not actual JSON arrays
@@ -151,7 +151,7 @@ Daily snapshot per shop. Unique on `(shop_id, snapshot_date)`.
 
 **Product tracking (`POST /api/products/track`):**
 1. Extract product ID from URL
-2. Call `/shop/product` — 1 API call
+2. Call `/shop/product` -> 1 API call
 3. Save/update product record
 4. Save daily product snapshot (price, sold, stock, reviews)
 5. Save/update shop record (no snapshot created from product tracking)
