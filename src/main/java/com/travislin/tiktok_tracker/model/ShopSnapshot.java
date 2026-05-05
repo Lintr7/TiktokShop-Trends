@@ -1,6 +1,6 @@
 package com.travislin.tiktok_tracker.model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,7 +29,7 @@ public class ShopSnapshot {
     private Shop shop;
 
     @Column(nullable = false)
-    private LocalDate snapshotDate;
+    private LocalDateTime snapshotDate;
 
     private Long totalSoldCount;
     private Double totalRevenueEstimate;

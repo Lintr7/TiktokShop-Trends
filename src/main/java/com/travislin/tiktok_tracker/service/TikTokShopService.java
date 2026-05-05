@@ -1,6 +1,5 @@
 package com.travislin.tiktok_tracker.service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -175,7 +174,7 @@ public class TikTokShopService {
         }
 
         if (allProducts.isEmpty()) throw new Exception("No products found for shop: " + sellerId);
-        
+
         String top1 = allProducts.size() > 0 ? allProducts.get(0).path("product_id").asText() : null;
         String top2 = allProducts.size() > 1 ? allProducts.get(1).path("product_id").asText() : null;
         String top3 = allProducts.size() > 2 ? allProducts.get(2).path("product_id").asText() : null;
@@ -214,7 +213,7 @@ public class TikTokShopService {
         // Calculate totals only
         long totalSold = 0;
         double totalRevenue = 0.0;
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
 
         for (JsonNode p : allProducts) {
             long sold = p.path("sold_info").path("sold_count").asLong();
@@ -325,7 +324,7 @@ public class TikTokShopService {
     }
 
     public void takeProductSnapshot(Product product, JsonNode data, JsonNode priceNode, JsonNode productBase) {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
 
         Optional<ProductSnapshot> existing = productSnapshotRepository
             .findByProductAndSnapshotDate(product, today);
@@ -373,7 +372,7 @@ public class TikTokShopService {
     }
 
     public void takeShopSnapshot(JsonNode data, JsonNode seller, String sellerId, String shopName, String productUrl) {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
 
         String shopImageUrl = "";
         JsonNode avatarUrlList = seller.path("avatar").path("url_list");
